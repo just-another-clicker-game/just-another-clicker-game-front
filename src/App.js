@@ -3,6 +3,7 @@ import ProductsContext from "./hooks/ProductsContext";
 import SessionContext from "./hooks/SessionContext";
 import Header from "./layout/Header";
 import { useState } from "react";
+import Main from "./pages/main/main";
 
 function App() {
   const [session, setSession] = useState(null);
@@ -16,7 +17,7 @@ function App() {
         <BrowserRouter>
           <Header />
           <Routes>
-
+            <Route path="/" element={<Main/>}></Route>
           </Routes>
         </BrowserRouter>
       </ProductsContext.Provider>

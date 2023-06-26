@@ -36,6 +36,8 @@ const Header = () => {
 
   return (
     <>
+    {!session
+    }
       <Login />
       <S.Container onClick={value.clicked}>
         <img src={logo}/>

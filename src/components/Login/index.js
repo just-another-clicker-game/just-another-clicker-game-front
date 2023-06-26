@@ -1,7 +1,7 @@
 import SessionContext from "../../hooks/SessionContext";
 import { API_BASE_URL } from "../../services/constants";
 import { AuthContext } from "../../provider/provider";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import ModalSpinner from "../ModalSpinner";
 import * as S from "./style";
 import axios from "axios";
@@ -10,10 +10,10 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
-  const [img, setImg] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const value = useContext(AuthContext);
   const { setSession } = useContext(SessionContext);
+  const [errorValue, setErrorValue] = useState(false)
 
   function login(e) {
     e.preventDefault();
@@ -25,12 +25,12 @@ export default function Login() {
     setIsLoading(true);
 
     axios
-      .post(`${API_BASE_URL}/login`, dados)
-      .then(({ data: { token, email, name, image } }) => {
+      .post(`${API_BASE_URL}/sign-in`, dados)
+      .then(({ data: { user: { email, name }, token } }) => {
+        console.log(name)
         setSession({
           email,
           name,
-          image,
           config: { headers: { Authorization: `Bearer ${token}` } },
         });
         value.setValue(false);
@@ -38,23 +38,29 @@ export default function Login() {
       })
       .catch((err) => {
         setIsLoading(false);
+        setErrorValue(true)
         console.log(err.response);
+
+        setTimeout(() => {
+          setErrorValue(false);
+        }, 3000);
       });
   }
 
   function signUp(e) {
     e.preventDefault();
     const dados = {
-      name: name,
       email: email,
+      name: name,
       password: password,
-      img: img ? img : "http://test",
     };
     setIsLoading(true);
     axios
       .post(`${API_BASE_URL}/sign-up`, dados)
       .then((crr) => {
         console.log(crr.data);
+        setEmail("")
+        setPassword("")
         value.setValue2(false);
         value.setValue(true);
         setIsLoading(false);
@@ -62,6 +68,10 @@ export default function Login() {
       .catch((err) => {
         console.log(err.response);
         setIsLoading(false);
+        setErrorValue(true)
+        setTimeout(() => {
+          setErrorValue(false);
+        }, 3000);
       });
   }
 
@@ -70,6 +80,8 @@ export default function Login() {
       {value.value && (
         <S.Login onSubmit={login}>
           {isLoading && <ModalSpinner />}
+          {errorValue && <p>Erro no login. Verifique suas credenciais.</p>}
+
           <input
             placeholder="Email"
             value={email}
@@ -101,6 +113,8 @@ export default function Login() {
       {value.value2 && (
         <S.SignUp onSubmit={signUp}>
           {isLoading && <ModalSpinner />}
+          {errorValue && <p>Erro no Registro. Verifique suas credenciais.</p>}
+
           <input
             placeholder="Nome"
             value={name}
@@ -120,12 +134,6 @@ export default function Login() {
             type="password"
             onChange={(e) => setPassword(e.target.value)}
             required
-          />
-          <input
-            placeholder="Imagem"
-            value={img}
-            type="url"
-            onChange={(e) => setImg(e.target.value)}
           />
           <button>Cadastrar</button>
           <p

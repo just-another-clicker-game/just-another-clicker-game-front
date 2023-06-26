@@ -83,5 +83,5 @@ export const Login = styled.form`
 `;
 
 export const SignUp = styled(Login)`
-  height: 450px;
+  height: 350px;
 `;
